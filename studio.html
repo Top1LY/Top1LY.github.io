@@ -116,14 +116,79 @@
     border-radius: 5px;
   }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  <!-- 返回上一级 -->
+  .studio-back {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .studio-back .link-quiet { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* 标签筛选条：复用 site.css 的 .tagpick，只把上边距收掉 */
+  .tagbar { margin-top: 0; }
+  .tagpick-empty { font-size: 12.5px; color: var(--text-3); }
+
+  /* 逐个指定标签颜色 */
+  .tagcolorbar { display: flex; flex-direction: column; gap: 7px; }
+  .tagcolor {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 8px 6px 11px;
+    border-radius: 10px;
+    background: var(--card-2);
+    border: 1px solid var(--stroke);
+  }
+  .tagcolor-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tagcolor input[type="color"] {
+    flex: none;
+    width: 40px;
+    height: 26px;
+    padding: 1px;
+    border: 1px solid var(--stroke-2);
+    border-radius: 7px;
+    background: var(--card-2);
+    cursor: pointer;
+  }
+  .tagcolor-clear {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-3);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .tagcolor-clear:hover { color: var(--accent); background: rgba(127, 127, 127, .14); }
 </style>
 </head>
 <body>
 
 <div class="wrap">
+  <div class="studio-back">
+    <a class="link-quiet" id="backLink" href="index.html">← 返回上一级</a>
+    <a class="link-quiet" id="linkProfile" href="index.html">查看主播主页 →</a>
+  </div>
+
   <header class="studio-head">
-    <h1>歌单配置台</h1>
-    <p>选主播 → 调外观、调色、调字号 → 复制地址贴进 OBS。一名主播一条地址，互不影响。</p>
+    <h1>OBS 悬浮层地址 · 配置台</h1>
+    <p>选主播 → 调外观、配色、标签与筛选 → 复制地址贴进 OBS。一名主播一条地址，互不影响。</p>
   </header>
 
   <div class="grid">
@@ -152,7 +217,8 @@
       <div class="block">
         <h2>主题</h2>
         <div class="swatches" id="swatches"></div>
-        <p class="hint">选一套预设打底，再用下面的三个取色器改单点颜色。</p>
+        <p class="hint">14 套预设：竖线左边是深色、右边是浅色；角上有小圆点的是这位主播推荐的那几套。
+          选一套打底，再用下面的取色器改单点颜色。</p>
       </div>
 
       <div class="block">
@@ -180,6 +246,69 @@
           <div class="label"><span>标签明度</span><b><span id="vTagLight">62</span>%</b></div>
           <input type="range" id="tagLight" min="20" max="90" step="1" value="62">
         </div>
+      </div>
+
+      <div class="block">
+        <h2>标签配色</h2>
+        <div class="field">
+          <div class="seg" id="segTagMode">
+            <button type="button" data-tagmode="accent">跟随主色</button>
+            <button type="button" data-tagmode="auto">各自配色</button>
+            <button type="button" data-tagmode="custom">逐个指定</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label"><span>各标签颜色</span><b id="vTagColorCount">0 个</b></div>
+          <div class="tagcolorbar" id="tagColorBar"></div>
+        </div>
+        <div class="field">
+          <button class="btn btn-ghost btn-sm" id="tagColorReset">全部恢复自动</button>
+        </div>
+        <p class="hint">
+          「跟随主色」整排标签共用一个主色、只靠明暗区分，画面最干净；
+          「各自配色」是每个标签一个色相，也就是颜色最多的那一档。
+          改下面任意一个颜色会自动切到「逐个指定」。<code>↺</code> 单独恢复某一个。
+        </p>
+      </div>
+
+      <div class="block">
+        <h2>筛选</h2>
+        <div class="field">
+          <div class="label"><span>关键词（留空 = 全部）</span></div>
+          <input type="text" id="filterQ" autocomplete="off" placeholder="搜歌名 / 歌手 / 标签，空格可分词">
+        </div>
+        <div class="field">
+          <div class="label"><span>按标签分类</span><b id="vFilterTags">全部</b></div>
+          <div class="tagbar" id="tagBar"></div>
+        </div>
+        <p class="hint">
+          留空就是完整歌单。多选标签之间是「或」——勾「日语 + 韩语」= 两类一起显示。
+          这样 OBS 里可以并存两条来源：一条全量、一条只看日语，切场景就切歌单。
+        </p>
+      </div>
+
+      <div class="block">
+        <h2>自定义背景图</h2>
+        <div class="field">
+          <label class="switch"><input type="checkbox" id="bgOn">启用背景图</label>
+        </div>
+        <div class="field">
+          <div class="label"><span>图片地址 / 相对路径</span></div>
+          <input type="text" id="bgUrl" autocomplete="off"
+                 placeholder="assets/backgrounds/yuki.jpg 或任意 https 图片地址">
+        </div>
+        <div class="field">
+          <div class="label"><span>不透明度</span><b><span id="vBgImgAlpha">55</span>%</b></div>
+          <input type="range" id="bgImgAlpha" min="0" max="100" step="1" value="55">
+        </div>
+        <div class="field">
+          <div class="label"><span>模糊</span><b><span id="vBgImgBlur">0</span> px</b></div>
+          <input type="range" id="bgImgBlur" min="0" max="40" step="1" value="0">
+        </div>
+        <p class="hint">
+          图片放进 <code>assets/backgrounds/</code>，这里填相对路径即可（该目录需要自己建）。
+          悬浮层默认全透明，不勾「启用」这一层不会出现，也不会写进地址。
+        </p>
       </div>
 
       <div class="block">

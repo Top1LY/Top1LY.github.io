@@ -44,6 +44,15 @@
     font: q.get('font'),
     themeName: (q.get('theme') || '').toLowerCase(),
 
+    /* 筛选：OBS 里没法打字，所以筛选走地址参数。
+       主播可以并存「全量」和「只看日语」两条浏览器源，切场景就切歌单。 */
+    keyword: (q.get('q') || '').trim(),
+    filterTags: SL.parseTags(q.get('tag')),
+
+    /* 标签配色：accent 全部跟随主色 / auto 各自配色 / custom 逐个指定 */
+    tagMode: q.get('tagMode') || '',
+    tagColors: SL.parseTagColors(q.get('tagColors')),
+
     /* 颜色覆盖：没写的项保持主题原值 */
     colors: {
       accent: q.get('accent'),
@@ -54,9 +63,15 @@
       bgOpacity: numOrNull('bgOpacity'),
       tagAlpha: numOrNull('tagAlpha'),
       tagSat: numOrNull('tagSat'),
-      tagLight: numOrNull('tagLight')
+      tagLight: numOrNull('tagLight'),
+      /* 自定义背景图：留空即不渲染这一层 */
+      bgImage: SL.safeUrl(q.get('bgImage')),
+      bgImgAlpha: numOrNull('bgImgAlpha'),
+      bgImgBlur: numOrNull('bgImgBlur')
     }
   };
+
+  var filtering = !!(opts.keyword || opts.filterTags.length);
 
   var els = {
     bar:      SL.$('bar'),
@@ -71,7 +86,8 @@
     chipSpace: SL.$('chipSpace'),
     chipLive: SL.$('chipLive'),
     list:     SL.$('list'),
-    empty:    SL.$('empty')
+    empty:    SL.$('empty'),
+    bgimg:    SL.$('bgimg')
   };
 
   var theme = null;
@@ -104,13 +120,37 @@
   /* ---------- 渲染 ---------- */
   function render(data) {
     var isPlainList = Array.isArray(data);
-    var songs = isPlainList ? data : (data && data.songs) || [];
+    var all = isPlainList ? data : (data && data.songs) || [];
+    var total = all.length;
+
+    /* 先筛再截断：?tag=日语&max=5 要的是"日语里的前 5 首"；
+       反过来先截断就成了"前 5 首里属于日语的"，那是另一回事。 */
+    var songs = SL.filterSongs(all, { q: opts.keyword, tags: opts.filterTags });
     if (opts.max > 0) songs = songs.slice(0, opts.max);
 
     /* 主题优先级：URL 参数 > 数据文件里的 theme > 极光 */
     var themeName = opts.themeName || (data && data.theme) || 'aurora';
-    theme = SLTheme.resolve(opts.colors, themeName);
+
+    /* 背景图优先级同上；两边都没有就不渲染这一层 */
+    var tParams = {};
+    for (var tk in opts.colors) tParams[tk] = opts.colors[tk];
+    if (!tParams.bgImage) tParams.bgImage = (data && data.bgImage) || null;
+    if (tParams.bgImgAlpha == null) tParams.bgImgAlpha = data && data.bgImgAlpha;
+    if (tParams.bgImgBlur == null) tParams.bgImgBlur = data && data.bgImgBlur;
+
+    theme = SLTheme.resolve(tParams, themeName);
     restyle();
+
+    if (els.bgimg) els.bgimg.hidden = !theme.bgImage;
+
+    /* 标签配色：模式 URL > 数据；自定义色按标签逐个合并，URL 覆盖数据 */
+    var tagMode = opts.tagMode || (data && data.tagMode) || 'auto';
+    var tagCustom = {};
+    var dc = (data && data.tagColors) || {};
+    for (var dk in dc) if (Object.prototype.hasOwnProperty.call(dc, dk)) tagCustom[dk] = dc[dk];
+    for (var uk in opts.tagColors) {
+      if (Object.prototype.hasOwnProperty.call(opts.tagColors, uk)) tagCustom[uk] = opts.tagColors[uk];
+    }
 
     /* --- 主播身份行 --- */
     var name = !isPlainList && data && data.name;
@@ -147,30 +187,48 @@
     if (opts.head && title) {
       els.head.hidden = false;
       els.headTitle.textContent = title;
-      els.headCount.textContent = '共 ' + songs.length + ' 首';
+      /* 筛选中时把「命中 / 总数」都露出来，主播一眼知道漏没漏 */
+      els.headCount.textContent = filtering
+        ? songs.length + ' / ' + total + ' 首'
+        : '共 ' + songs.length + ' 首';
     } else {
       els.head.hidden = true;
     }
 
     /* --- 曲目 --- */
     els.list.textContent = '';
-    els.empty.hidden = songs.length > 0;
+
+    if (songs.length) {
+      els.empty.hidden = true;
+    } else {
+      els.empty.hidden = false;
+      els.empty.textContent = total
+        ? '没有匹配的曲目 · 检查地址里的 q / tag'
+        : '歌单还是空的';
+    }
 
     songs.forEach(function (song, i) {
       var li = SL.el('li', 'item');
       if (i === opts.playing) li.classList.add('is-playing');
 
-      var tagName = song.tag || song.category || '';
+      var tagName = SL.tagOf(song);
       if (tagName) {
         var tag = SL.el('span', 'tag', tagName);
-        var rgb = SL.tagRgb(tagName, theme, song.color);
+        var rgb = SL.resolveTagRgb(tagName, theme, {
+          fixed: song.color, mode: tagMode, custom: tagCustom
+        });
         tag.style.setProperty('--tag-rgb', rgb.join(','));
         tag.style.setProperty('--tag-fg', SL.tagFg(rgb));
         li.appendChild(tag);
       }
 
       var meta = SL.el('div', 'meta');
-      meta.appendChild(SL.el('span', 'name', song.name || song.title || ''));
+
+      var nameEl = SL.el('span', 'name', song.name || song.title || '');
+      nameEl.title = '点击复制歌名';
+      nameEl.addEventListener('click', function () { SL.copySong(song); });
+      meta.appendChild(nameEl);
+
       if (song.artist) meta.appendChild(SL.el('span', 'artist', song.artist));
       li.appendChild(meta);
 
@@ -205,6 +263,7 @@
      避免首帧闪一下没颜色。 */
   theme = SLTheme.resolve(opts.colors, opts.themeName || 'aurora');
   restyle();
+  if (els.bgimg) els.bgimg.hidden = !theme.bgImage;
   load();
 
   /* 定时刷新：主播改完 json 推上去，画面不用重开 */

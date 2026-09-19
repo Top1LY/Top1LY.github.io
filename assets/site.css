@@ -201,16 +201,6 @@ a { color: inherit; }
   min-height: 3.4em;
 }
 .tags { display: flex; flex-wrap: wrap; gap: 7px; }
-.tag-chip {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 999px;
-  color: var(--text-2);
-  background: rgba(var(--line-rgb, 255, 255, 255), .07);
-  border: 1px solid var(--stroke);
-}
-body.mode-light .tag-chip { background: rgba(11, 13, 19, .04); }
 
 .card-foot {
   display: flex;
@@ -224,12 +214,6 @@ body.mode-light .tag-chip { background: rgba(11, 13, 19, .04); }
   background: var(--card-accent, var(--accent));
   color: var(--card-accent-fg, var(--accent-fg, #0B0D13));
   box-shadow: 0 6px 18px rgba(var(--card-accent-rgb, var(--accent-rgb)), .28);
-}
-.card-songs {
-  font-size: 12px;
-  color: var(--text-3);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 /* 卡片整体可点：主按钮是链接，卡片本身也挂了跳转 */
@@ -259,6 +243,40 @@ body.mode-light .tag-chip { background: rgba(11, 13, 19, .04); }
     var(--card);
   border: 1px solid var(--stroke);
 }
+
+/* 自定义背景图（可选）。三层一起才成立：
+   ① ::before 铺图  ② ::after 压一层蒙版  ③ 内容抬到蒙版之上。
+   少了②，封面图一花，头像和简介就读不出来了。 */
+.hero.has-bgimg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--bg-img);
+  background-size: cover;
+  background-position: center;
+  opacity: var(--bg-img-a, .55);
+  filter: blur(calc(var(--bg-img-blur, 0) * 1px));
+  transform: scale(1.04);          /* 模糊会让边缘透出底色，放大一点盖住 */
+  pointer-events: none;
+}
+.hero.has-bgimg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(6, 8, 14, .74) 0%,
+    rgba(6, 8, 14, .48) 55%,
+    rgba(6, 8, 14, .20) 100%);
+  pointer-events: none;
+}
+/* 浅色主题下蒙版要反过来用白，否则深字压在暗图上全糊 */
+body.mode-light .hero.has-bgimg::after {
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, .84) 0%,
+    rgba(255, 255, 255, .62) 55%,
+    rgba(255, 255, 255, .34) 100%);
+}
+.hero.has-bgimg > * { position: relative; z-index: 1; }
 .hero-avatar {
   flex: none;
   width: 112px;
@@ -390,6 +408,93 @@ body.mode-light .tag-chip { background: rgba(11, 13, 19, .04); }
   overflow-wrap: anywhere;
 }
 
+/* ---------- 歌单筛选：搜索框 + 标签分类 ---------- */
+.filter {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--stroke);
+}
+.filter-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.search {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+.search-ico {
+  position: absolute;
+  left: 11px;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--text-3);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.search input {
+  width: 100%;
+  padding: 9px 12px 9px 33px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--text);
+  background: var(--card-2);
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  outline: none;
+}
+.search input:focus { border-color: var(--accent); }
+.search input::placeholder { color: var(--text-3); }
+/* 去掉 type=search 自带的清除叉：跟右边的「清空筛选」按钮功能重复 */
+.search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+.tagbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+.tagpick {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: rgba(var(--tag-rgb, 124, 156, 255), calc(var(--tag-a, .9) * .16));
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: .16s ease;
+}
+.tagpick:hover { color: var(--text); border-color: rgba(var(--tag-rgb), .5); }
+.tagpick[aria-pressed="true"] {
+  background: rgba(var(--tag-rgb), var(--tag-a, .9));
+  color: var(--tag-fg, #fff);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+}
+/* 「全部」不占某个标签的色，直接用主色 */
+.tagpick.is-all { --tag-rgb: var(--accent-rgb); --tag-fg: var(--accent-fg, #0B0D13); --tag-a: 1; }
+.tagpick-count {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: .66;
+}
+.tagpick[aria-pressed="true"] .tagpick-count { opacity: .88; }
+.filter-stat {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--text-3);
+}
+
 /* 侧栏卡片 */
 .side { display: flex; flex-direction: column; gap: 18px; }
 .side h2 {
@@ -476,14 +581,6 @@ body.mode-light .code { background: #F1F4FA; }
   background: var(--accent);
   color: var(--accent-fg, #0B0D13);
 }
-.field-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-3);
-  letter-spacing: .04em;
-  margin: 14px 0 7px;
-}
 
 /* 色板 */
 .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -501,6 +598,35 @@ body.mode-light .code { background: #F1F4FA; }
 .swatch[aria-pressed="true"] {
   box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--accent);
 }
+/* 该主播推荐的那几套：右上角一个小点。14 套里挑的时候有主次之分。 */
+.swatch.is-rec::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--card);
+}
+/* 深色主题与浅色主题之间的竖线：14 套平铺成一排看不出深浅差别 */
+.swatch-sep {
+  flex: none;
+  width: 1px;
+  align-self: stretch;
+  margin: 3px 2px;
+  background: var(--stroke-2);
+}
+
+/* 侧栏说明文字 */
+.side p.side-hint { margin: 9px 0 0; font-size: 12px; color: var(--text-3); }
+.side code {
+  background: rgba(127, 127, 127, .16);
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 11.5px;
+}
 
 /* 状态 */
 .state {
@@ -509,3 +635,66 @@ body.mode-light .code { background: #F1F4FA; }
   color: var(--text-3);
   font-size: 14px;
 }
+
+/* ---------- 点歌名复制 ---------- */
+.song-name {
+  cursor: pointer;
+  transition: color .16s ease;
+}
+.song-name:hover { color: var(--accent); }
+
+/* 行尾的复制按钮：平时隐形，鼠标进到这一行才现出来，
+   免得整列都是小图标把歌单弄花。 */
+.song-copy {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  opacity: 0;
+  transition: .16s ease;
+}
+.song:hover .song-copy { opacity: 1; }
+.song-copy:hover { border-color: var(--accent); color: var(--accent); }
+.song-copy:focus-visible { opacity: 1; border-color: var(--accent); color: var(--accent); }
+.song-copy svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- 轻提示（复制反馈） ---------- */
+.sltoast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translate(-50%, 12px);
+  max-width: min(88vw, 560px);
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: rgba(16, 19, 27, .94);
+  color: #F2F5FB;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  word-break: break-word;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .42), inset 0 0 0 1px rgba(255, 255, 255, .10);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 999;
+}
+.sltoast.is-on { opacity: 1; transform: translate(-50%, 0); }
+.sltoast.is-warn { background: rgba(122, 51, 14, .96); }

@@ -1,7 +1,7 @@
 {
   "site": {
     "title": "点歌台 · 主播歌单站",
-    "tagline": "选一位主播进入她的歌单主页；OBS 悬浮层地址在主页里一键复制"
+    "tagline": "选一位主播进入她的歌单主页；OBS 悬浮层地址在配置台里一键复制"
   },
   "defaults": {
     "streamer": "yuki",
@@ -17,6 +17,7 @@
       "intro": "每晚 20:00 开播，日语流行与唱见，偶尔来点怀旧动画曲。点歌直接在直播间弹幕里说就行，排到会念 ID。",
       "tags": ["日语", "唱见", "治愈"],
       "theme": "aurora",
+      "themes": ["aurora", "ocean", "violet", "mint"],
       "accent": "#7C9CFF",
       "bilibili": {
         "space": "https://space.bilibili.com/100001",
@@ -31,6 +32,7 @@
       "intro": "周三四五 21:30 开播，古风与国风专场。高音是保留节目，点歌请优先中文与国风，偶尔来一首日语怀旧。",
       "tags": ["中文", "古风", "高音"],
       "theme": "sakura",
+      "themes": ["sakura", "rose", "violet", "cream"],
       "accent": "#FF6FA5",
       "bilibili": {
         "space": "https://space.bilibili.com/100002",
@@ -45,6 +47,7 @@
       "intro": "周末通宵场，欧美电音与说唱为主，点歌不限语种。想听的直接刷，排到就放，长曲会提前说一声。",
       "tags": ["英文", "电音", "RAP"],
       "theme": "midnight",
+      "themes": ["midnight", "cyber", "mono", "neon"],
       "accent": "#D9B45B",
       "bilibili": {
         "space": "https://space.bilibili.com/100003",
@@ -59,6 +62,7 @@
       "intro": "隔日晚 22:00 开播，韩系女团与 K-POP 为主，打歌舞台会同步跟唱。点歌请写「歌名 + 团名」，方便我对齐版本。",
       "tags": ["韩语", "女团", "电音"],
       "theme": "neon",
+      "themes": ["neon", "cyber", "ocean", "violet"],
       "accent": "#2DD4A7",
       "bilibili": {
         "space": "https://space.bilibili.com/100004",

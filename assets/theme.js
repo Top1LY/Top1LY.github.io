@@ -1,6 +1,8 @@
 /* ============================================================
-   主题系统 · 6 套预设 + 任意 hex 覆盖
+   主题系统 · 14 套预设 + 任意 hex 覆盖
    —— 所有颜色最终落到 CSS 变量上，页面本身不写死任何颜色。
+   —— 深色 11 套 / 浅色 3 套。浅色主题 mode 必须是 'light'，
+      ts 必须用 'soft'，否则深字会被深色阴影漂白。
    ============================================================ */
 (function (global) {
   'use strict';
@@ -60,6 +62,65 @@
       tagSat: 0.70, tagLight: 0.62, tagAlpha: 0.90,
       ts: 'strong'
     },
+
+    /* ---- 以下 6 套为深色扩展 ---- */
+    ocean: {
+      label: '深海 Ocean', mode: 'dark',
+      accent: '#38BDF8', accent2: '#7DD3FC',
+      bg: '#04121C', bgOpacity: 0.55,
+      color: '#F0F9FF', sub: '#A5C8DC',
+      line: '#FFFFFF', lineOpacity: 0.09,
+      tagSat: 0.68, tagLight: 0.60, tagAlpha: 0.90,
+      ts: 'strong'
+    },
+    violet: {
+      label: '紫晶 Violet', mode: 'dark',
+      accent: '#A78BFA', accent2: '#D8B4FE',
+      bg: '#0C0818', bgOpacity: 0.55,
+      color: '#F6F2FF', sub: '#C4B5D9',
+      line: '#FFFFFF', lineOpacity: 0.09,
+      tagSat: 0.66, tagLight: 0.64, tagAlpha: 0.90,
+      ts: 'strong'
+    },
+    forest: {
+      label: '森野 Forest', mode: 'dark',
+      accent: '#4ADE80', accent2: '#A7F3D0',
+      bg: '#04140C', bgOpacity: 0.58,
+      color: '#F0FDF4', sub: '#A7C9B4',
+      line: '#FFFFFF', lineOpacity: 0.09,
+      tagSat: 0.60, tagLight: 0.58, tagAlpha: 0.90,
+      ts: 'strong'
+    },
+    rose: {
+      label: '暗玫瑰 Rose', mode: 'dark',
+      accent: '#FB7185', accent2: '#FDA4AF',
+      bg: '#16070B', bgOpacity: 0.58,
+      color: '#FFF1F2', sub: '#DCA8B0',
+      line: '#FFFFFF', lineOpacity: 0.09,
+      tagSat: 0.68, tagLight: 0.64, tagAlpha: 0.90,
+      ts: 'strong'
+    },
+    /* 赛博主色的两端刻意拉开（品红 → 青），渐变与描边才有电子感 */
+    cyber: {
+      label: '赛博 Cyber', mode: 'dark',
+      accent: '#F472B6', accent2: '#22D3EE',
+      bg: '#0A0416', bgOpacity: 0.50,
+      color: '#FFFFFF', sub: '#C4B0D6',
+      line: '#FFFFFF', lineOpacity: 0.11,
+      tagSat: 0.80, tagLight: 0.60, tagAlpha: 0.90,
+      ts: 'strong'
+    },
+    /* 墨白：标签饱和度压到 0.10，整排标签只剩明暗层次，最不抢画面 */
+    mono: {
+      label: '墨白 Mono', mode: 'dark',
+      accent: '#D4D4D8', accent2: '#A1A1AA',
+      bg: '#0A0A0B', bgOpacity: 0.60,
+      color: '#FAFAFA', sub: '#A1A1AA',
+      line: '#FFFFFF', lineOpacity: 0.10,
+      tagSat: 0.10, tagLight: 0.70, tagAlpha: 0.92,
+      ts: 'strong'
+    },
+
     light: {
       label: '白昼 Light', mode: 'light',
       accent: '#3B6FE0', accent2: '#7FA8F5',
@@ -68,8 +129,34 @@
       line: '#0B0D13', lineOpacity: 0.10,
       tagSat: 0.58, tagLight: 0.54, tagAlpha: 0.95,
       ts: 'soft'
+    },
+
+    /* ---- 以下 2 套为浅色扩展 ---- */
+    cream: {
+      label: '奶油 Cream', mode: 'light',
+      accent: '#C08A3E', accent2: '#E5B96C',
+      bg: '#FFFBF3', bgOpacity: 0.85,
+      color: '#2A2117', sub: '#7A6A55',
+      line: '#2A2117', lineOpacity: 0.10,
+      tagSat: 0.55, tagLight: 0.58, tagAlpha: 0.95,
+      ts: 'soft'
+    },
+    mint: {
+      label: '薄荷 Mint', mode: 'light',
+      accent: '#1F9E8B', accent2: '#6FD3C3',
+      bg: '#FFFFFF', bgOpacity: 0.85,
+      color: '#0E211D', sub: '#5C7A73',
+      line: '#0E211D', lineOpacity: 0.10,
+      tagSat: 0.55, tagLight: 0.55, tagAlpha: 0.95,
+      ts: 'soft'
     }
   };
+
+  /* 主题分组：色板里按深 / 浅分两排，避免一排 14 个方块看不出差别 */
+  function groupOf(name) {
+    var t = PRESETS[name];
+    return t && t.mode === 'light' ? 'light' : 'dark';
+  }
 
   var TS = {
     strong: {
@@ -104,6 +191,22 @@
     return r;
   }
 
+  /* 自定义背景图会以 url("…") 的形式写进 CSS 变量，
+     所以必须先剔掉能提前闭合引号的字符，以及 javascript: 这类协议。
+     —— 背景图地址来自 URL 参数，等于用户可写的输入，这一步不能省。 */
+  function safeUrl(u) {
+    var s = String(u == null ? '' : u).trim();
+    if (!s) return '';
+    if (/^(javascript|vbscript|data:text\/html)/i.test(s)) return '';
+    return s.replace(/["'\\\r\n\t]/g, '');
+  }
+
+  function clamp01(n) {
+    n = parseFloat(n);
+    if (!isFinite(n)) return null;
+    return n < 0 ? 0 : (n > 1 ? 1 : n);
+  }
+
   /* 取主题：名称未知时回落到第一个预设 */
   function get(name) {
     return clone(PRESETS[name] || PRESETS.aurora);
@@ -131,6 +234,18 @@
     if (p.tagSat != null) t.tagSat = p.tagSat;
     if (p.tagLight != null) t.tagLight = p.tagLight;
     if (p.mode) t.mode = p.mode;
+
+    /* 自定义背景图（可选，不写就没有这一层） */
+    if (p.bgImage) {
+      var u = safeUrl(p.bgImage);
+      if (u) t.bgImage = u;
+    }
+    if (t.bgImage) {
+      var a = clamp01(p.bgImgAlpha);
+      t.bgImgAlpha = a == null ? (t.bgImgAlpha == null ? 0.55 : t.bgImgAlpha) : a;
+      var b = parseFloat(p.bgImgBlur);
+      t.bgImgBlur = isFinite(b) && b >= 0 ? b : (t.bgImgBlur || 0);
+    }
     return t;
   }
 
@@ -166,6 +281,17 @@
     s.setProperty('--ts', shadow.ts);
     s.setProperty('--ts-soft', shadow.soft);
 
+    /* 背景图层：地址为空就写 none，页面照常用纯色底，不会有半成品效果 */
+    if (t.bgImage) {
+      s.setProperty('--bg-img', 'url("' + t.bgImage + '")');
+      s.setProperty('--bg-img-a', String(t.bgImgAlpha));
+      s.setProperty('--bg-img-blur', String(t.bgImgBlur));
+    } else {
+      s.setProperty('--bg-img', 'none');
+      s.setProperty('--bg-img-a', '0');
+      s.setProperty('--bg-img-blur', '0');
+    }
+
     if (extra) for (var k in extra) if (extra[k] != null) s.setProperty(k, extra[k]);
 
     var body = document.body;
@@ -184,6 +310,18 @@
     apply: apply,
     hexToRgb: hexToRgb,
     rgbStr: rgbStr,
-    luminance: luminance
+    luminance: luminance,
+    safeUrl: safeUrl,
+    groupOf: groupOf,
+    label: function (name) {
+      var t = PRESETS[name];
+      return t ? t.label : '';
+    },
+    /* 深色一排、浅色一排，排内维持 PRESETS 的声明顺序 */
+    groups: function () {
+      var out = { dark: [], light: [] };
+      Object.keys(PRESETS).forEach(function (n) { out[groupOf(n)].push(n); });
+      return out;
+    }
   };
 })(window);

@@ -14,7 +14,7 @@
   </div>
 
   <div id="profile" hidden>
-    <section class="hero">
+    <section class="hero" id="hero">
       <span class="hero-avatar" id="heroAvatar"><span id="heroInitial"></span></span>
       <div class="hero-info">
         <h1 id="heroName"></h1>
@@ -35,31 +35,41 @@
           <h2 id="songTitle">完整歌单</h2>
           <span id="songCount"></span>
         </div>
+
+        <div class="filter" id="filter" hidden>
+          <div class="filter-top">
+            <div class="search">
+              <svg class="search-ico" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <circle cx="8.5" cy="8.5" r="5.5"></circle>
+                <path d="M12.9 12.9 17 17"></path>
+              </svg>
+              <input type="search" id="q" autocomplete="off"
+                     placeholder="搜歌名 / 歌手 / 标签，空格可分词">
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" id="clearFilter" hidden>清空筛选</button>
+          </div>
+
+          <div class="tagbar" id="tagbar"></div>
+          <div class="filter-stat" id="filterStat"></div>
+        </div>
+
         <div class="songs" id="songs"></div>
       </section>
 
       <aside class="side">
         <div class="panel" id="obs">
-          <h2>OBS 悬浮层地址</h2>
-          <p>这条地址已经带上了该主播的数据与配色。粘进 OBS「浏览器」来源 → 勾选透明背景 → 宽高对齐画布。</p>
+          <h2>OBS 悬浮层</h2>
+          <p>歌单要贴到直播画面上，用的是「悬浮层」地址。它不摆在这里——一串带参数的地址摊在歌单页上既容易被误复制，也会把页面占满。</p>
+          <p>外观、配色、滤镜、筛选都在配置页里调，调好一键复制。</p>
 
-          <span class="field-label">外观</span>
-          <div class="seg" id="segStyle">
-            <button type="button" data-style="compact">紧凑窄版</button>
-            <button type="button" data-style="banner">大字大屏</button>
-            <button type="button" data-style="minimal">简约无标签</button>
-          </div>
-
-          <span class="field-label">主题</span>
-          <div class="swatches" id="swatches"></div>
-
-          <span class="field-label">地址</span>
-          <div class="code" id="obsUrl"></div>
-          <button class="btn btn-primary btn-block" id="copyObs">复制地址</button>
+          <a class="btn btn-primary btn-block" id="btnStudio">进入 OBS 地址配置页 →</a>
           <div class="card-foot" style="margin-top:10px; gap:8px">
-            <a class="btn btn-ghost btn-sm" id="previewObs" target="_blank" rel="noopener">在新窗口预览</a>
-            <a class="btn btn-ghost btn-sm" href="studio.html">细调 →</a>
+            <a class="btn btn-ghost btn-sm" id="btnPreview" target="_blank" rel="noopener">先看悬浮层效果</a>
           </div>
+
+          <p class="side-hint" style="margin-top:12px">
+            配置页里还能生成「只看某一类标签」的地址，OBS 里切场景就等于切歌单。
+          </p>
         </div>
 
         <div class="panel">

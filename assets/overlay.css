@@ -62,8 +62,28 @@ body.style-minimal { --gap-k: .25; --pad-k: .38; --radius-k: .50; }
   padding: calc(var(--fs) * .85 * 1px);
   width: 100%;
   min-width: 0;
+  position: relative;
+  z-index: 1;                      /* 压在自定义背景图之上 */
 }
 body.no-panel .overlay { padding: 0; }
+
+/* ============================================================
+   自定义背景图（可选，?bgImage= 才出现）
+   默认不渲染 —— 悬浮层的第一原则是全透明，
+   不加这一层时页面依旧完全透明，老地址的行为一点不变。
+   ============================================================ */
+.bgimg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--bg-img);
+  background-size: cover;
+  background-position: center;
+  opacity: var(--bg-img-a, .55);
+  filter: blur(calc(var(--bg-img-blur, 0) * 1px));
+  transform: scale(1.05);          /* 模糊会让边缘透出底色，放大一点盖住 */
+  pointer-events: none;
+}
 
 /* ============================================================
    主播身份行
@@ -311,6 +331,15 @@ body.no-tags .tag { display: none; }
   min-width: 0;
 }
 
+/* 点歌名复制。OBS 的浏览器源不接受鼠标点击，所以直播画面上这个能力
+   等于不存在、也不影响显示；真正能用的是用浏览器打开这条地址的时候。 */
+.name { cursor: pointer; }
+.name:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .16em;
+}
+
 /* ---------- 变体 2：大字大屏版 ---------- */
 /* 大字版的字号只有歌名被放大，主播身份与按钮要相对收缩，
    否则字大一圈、头像也大一圈，底部整条会被撑得又高又笨。
@@ -387,3 +416,31 @@ body.preview.mode-light {
 }
 body.preview .overlay { margin: 40px; width: auto; }
 body.preview.style-banner .overlay { margin: 40px; }
+
+/* ---------- 轻提示（复制反馈）----------
+   尺寸不跟 --fs 走：它是给操作者看的界面反馈，不是画面内容的一部分，
+   主播把字号调到 40 也不该让提示条变成一条横幅。 */
+.sltoast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translate(-50%, 12px);
+  max-width: min(88vw, 560px);
+  padding: 11px 18px;
+  border-radius: 12px;
+  background: rgba(16, 19, 27, .94);
+  color: #F2F5FB;
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  word-break: break-word;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .42), inset 0 0 0 1px rgba(255, 255, 255, .10);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+  z-index: 999;
+}
+.sltoast.is-on { opacity: 1; transform: translate(-50%, 0); }
+.sltoast.is-warn { background: rgba(122, 51, 14, .96); }

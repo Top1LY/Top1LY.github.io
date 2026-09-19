@@ -12,7 +12,9 @@
   var OVERLAY_KEYS = ['style', 'src', 'id', 'playing', 'refresh', 'max',
                       'panel', 'tags', 'size', 'blur', 'radius', 'identity',
                       'avatar', 'link', 'preview', 'accent', 'accent2', 'bg', 'color', 'sub',
-                      'bgOpacity', 'tagAlpha', 'tagSat', 'tagLight', 'title', 'theme', 'font'];
+                      'bgOpacity', 'tagAlpha', 'tagSat', 'tagLight', 'title', 'theme', 'font',
+                      'q', 'tag', 'bgImage', 'bgImgAlpha', 'bgImgBlur',
+                      'tagMode', 'tagColors'];
   var q = new URLSearchParams(location.search);
   var hit = OVERLAY_KEYS.some(function (k) { return q.has(k); });
   if (hit) location.replace('overlay.html' + location.search);
@@ -29,7 +31,7 @@
     </div>
     <div class="site-meta">
       <span class="count" id="stat"></span>
-      <a class="btn btn-ghost btn-sm" id="studioLink" href="studio.html">打开配置台 →</a>
+      <a class="btn btn-ghost btn-sm" id="studioLink" href="studio.html">OBS 悬浮层地址 →</a>
     </div>
   </header>
 
