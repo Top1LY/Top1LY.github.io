@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>歌单配置台 · 主播歌单站</title>
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  /* 配置台自己的排版，颜色沿用 site.css 的变量，所以换主题时整页一起变 */
+  .wrap { max-width: 1400px; padding: 32px 24px 64px; }
+  .studio-head { margin-bottom: 22px; }
+  .studio-head h1 { margin: 0 0 6px; font-size: 24px; font-weight: 700; }
+  .studio-head p { margin: 0; font-size: 13px; color: var(--text-2); }
+
+  .grid { display: grid; grid-template-columns: 372px minmax(0, 1fr); gap: 22px; align-items: start; }
+  @media (max-width: 1020px) { .grid { grid-template-columns: 1fr; } }
+
+  .block {
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .block > h2 {
+    margin: 0 0 14px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .field { margin-bottom: 15px; }
+  .field:last-child { margin-bottom: 0; }
+  .label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 7px;
+  }
+  .label b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  input[type="text"], input[type="number"], textarea, select {
+    width: 100%;
+    background: var(--card-2);
+    color: var(--text);
+    border: 1px solid var(--stroke);
+    border-radius: 9px;
+    padding: 9px 11px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea {
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+  .switch { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 13px; color: var(--text); }
+  .switch input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+  .triple { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .triple input[type="color"] {
+    width: 100%;
+    height: 38px;
+    padding: 2px;
+    border: 1px solid var(--stroke-2);
+    border-radius: 9px;
+    background: var(--card-2);
+    cursor: pointer;
+  }
+  .triple small { display: block; text-align: center; font-size: 11px; color: var(--text-3); margin-top: 5px; }
+
+  .stage {
+    border-radius: 16px;
+    border: 1px solid var(--stroke);
+    overflow: hidden;
+    background:
+      radial-gradient(120% 90% at 12% 8%, #3B4E82 0%, rgba(59,78,130,0) 55%),
+      radial-gradient(100% 80% at 88% 92%, #6B4462 0%, rgba(107,68,98,0) 60%),
+      linear-gradient(160deg, #1B2233 0%, #0B0E16 100%);
+  }
+  .stage-tag {
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.62);
+    padding: 12px 14px 10px;
+  }
+  .stage iframe { width: 100%; height: 520px; border: 0; display: block; }
+
+  .out {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    word-break: break-all;
+    background: var(--card-2);
+    border: 1px solid var(--stroke);
+    border-radius: 10px;
+    padding: 11px 12px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .hint { font-size: 12px; color: var(--text-3); margin: 10px 0 0; line-height: 1.7; }
+  .hint code {
+    background: rgba(127, 127, 127, .16);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="studio-head">
+    <h1>歌单配置台</h1>
+    <p>选主播 → 调外观、调色、调字号 → 复制地址贴进 OBS。一名主播一条地址，互不影响。</p>
+  </header>
+
+  <div class="grid">
+    <!-- ============ 左：控制面板 ============ -->
+    <div>
+      <div class="block">
+        <h2>主播</h2>
+        <div class="field">
+          <select id="streamer"></select>
+        </div>
+        <div class="field">
+          <div class="label"><span>自定义标题（留空 = 用数据里的 title）</span></div>
+          <input type="text" id="titleText" placeholder="例如：今晚随机唱见">
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>外观</h2>
+        <div class="seg" id="segStyle">
+          <button type="button" data-style="compact">紧凑窄版</button>
+          <button type="button" data-style="banner">大字大屏</button>
+          <button type="button" data-style="minimal">简约无标签</button>
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>主题</h2>
+        <div class="swatches" id="swatches"></div>
+        <p class="hint">选一套预设打底，再用下面的三个取色器改单点颜色。</p>
+      </div>
+
+      <div class="block">
+        <h2>自定义颜色</h2>
+        <div class="field">
+          <div class="triple">
+            <div><input type="color" id="accent" value="#7C9CFF"><small>主色</small></div>
+            <div><input type="color" id="bg" value="#080A10"><small>底板</small></div>
+            <div><input type="color" id="color" value="#FFFFFF"><small>文字</small></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label"><span>底板通透度</span><b><span id="vBgOpacity">55</span>%</b></div>
+          <input type="range" id="bgOpacity" min="0" max="100" step="1" value="55">
+        </div>
+        <div class="field">
+          <div class="label"><span>标签不透明度</span><b><span id="vTagAlpha">90</span>%</b></div>
+          <input type="range" id="tagAlpha" min="20" max="100" step="1" value="90">
+        </div>
+        <div class="field">
+          <div class="label"><span>标签饱和度</span><b><span id="vTagSat">62</span>%</b></div>
+          <input type="range" id="tagSat" min="0" max="100" step="1" value="62">
+        </div>
+        <div class="field">
+          <div class="label"><span>标签明度</span><b><span id="vTagLight">62</span>%</b></div>
+          <input type="range" id="tagLight" min="20" max="90" step="1" value="62">
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>排版</h2>
+        <div class="field">
+          <div class="label"><span>歌名字号</span><b><span id="vSize">16</span> px</b></div>
+          <input type="range" id="size" min="10" max="64" step="1" value="16">
+        </div>
+        <div class="field">
+          <div class="label"><span>最多显示条数（0 = 全部）</span><b id="vMax">全部</b></div>
+          <input type="range" id="max" min="0" max="20" step="1" value="0">
+        </div>
+        <div class="field">
+          <div class="label"><span>标记「正在播放」</span><b id="vPlaying">不标记</b></div>
+          <input type="range" id="playing" min="-1" max="19" step="1" value="-1">
+        </div>
+        <div class="field">
+          <div class="label"><span>圆角倍率</span><b><span id="vRadius">100</span>%</b></div>
+          <input type="range" id="radius" min="0" max="200" step="5" value="100">
+        </div>
+        <div class="field">
+          <div class="label"><span>毛玻璃倍率</span><b><span id="vBlur">100</span>%</b></div>
+          <input type="range" id="blur" min="0" max="200" step="5" value="100">
+        </div>
+        <div class="field">
+          <div class="label"><span>自动刷新间隔</span><b><span id="vRefresh">60</span> 秒</b></div>
+          <input type="range" id="refresh" min="0" max="300" step="10" value="60">
+        </div>
+      </div>
+
+      <div class="block">
+        <h2>开关</h2>
+        <div class="field"><label class="switch"><input type="checkbox" id="identity" checked>显示主播身份行</label></div>
+        <div class="field"><label class="switch"><input type="checkbox" id="avatar" checked>显示主播头像</label></div>
+        <div class="field"><label class="switch"><input type="checkbox" id="link" checked>显示 B站 / 直播间 按钮</label></div>
+        <div class="field"><label class="switch"><input type="checkbox" id="tags" checked>显示分类标签</label></div>
+        <div class="field"><label class="switch"><input type="checkbox" id="panel" checked>条目半透明底板</label></div>
+        <div class="field"><label class="switch"><input type="checkbox" id="head" checked>显示歌单标题行</label></div>
+      </div>
+
+      <div class="block">
+        <h2>OBS 地址</h2>
+        <div class="out" id="out"></div>
+        <div class="row">
+          <button class="btn btn-primary btn-sm" id="copy">复制地址</button>
+          <button class="btn btn-ghost btn-sm" id="open">在新窗口预览</button>
+        </div>
+        <h2 style="margin:18px 0 10px">主播主页地址</h2>
+        <div class="out" id="outProfile"></div>
+        <div class="row">
+          <button class="btn btn-ghost btn-sm" id="copyProfile">复制主页地址</button>
+        </div>
+        <p class="hint">OBS → 来源 → <code>+</code> → 浏览器 → 粘贴悬浮层地址 → 宽高与画布一致 → 勾「透明背景」。</p>
+      </div>
+    </div>
+
+    <!-- ============ 右：预览 + 数据 ============ -->
+    <div>
+      <div class="stage">
+        <div class="stage-tag">实时预览 · 示意背景，实际为透明</div>
+        <iframe id="preview" title="预览"></iframe>
+      </div>
+
+      <div class="block" style="margin-top:16px">
+        <h2>歌单数据 · <span id="dataName"></span></h2>
+        <div class="field">
+          <textarea id="json" rows="16" spellcheck="false"></textarea>
+        </div>
+        <div class="row">
+          <button class="btn btn-primary btn-sm" id="apply">应用到预览</button>
+          <button class="btn btn-ghost btn-sm" id="download">下载该主播的 json</button>
+          <button class="btn btn-ghost btn-sm" id="reset">恢复线上文件</button>
+        </div>
+        <p class="hint">
+          改完点「应用到预览」先看效果；确认后「下载 json」，覆盖 <code>streamers/&lt;id&gt;.json</code>。
+          标签颜色按标签名自动分配，也可以给某一条写 <code>"color": "#FF0000"</code> 固定住。
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/theme.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/studio.js"></script>
+</body>
+</html>

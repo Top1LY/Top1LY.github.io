@@ -1,0 +1,26 @@
+{
+  "id": "luna",
+  "name": "月见露娜",
+  "handle": "LunaTsukimi",
+  "bio": "周三四五 21:30｜古风与国风专场，高音是保留节目。",
+  "intro": "周三四五 21:30 开播，古风与国风专场。高音是保留节目，点歌请优先中文与国风，偶尔来一首日语怀旧。",
+  "tags": ["中文", "古风", "高音"],
+  "theme": "sakura",
+  "accent": "#FF6FA5",
+  "bilibili": {
+    "space": "https://space.bilibili.com/100002",
+    "live": "https://live.bilibili.com/200002"
+  },
+  "title": "今晚歌单",
+  "updated": "昨天",
+  "songs": [
+    { "tag": "中文", "name": "赤伶", "artist": "HITA" },
+    { "tag": "中文", "name": "牵丝戏", "artist": "银临" },
+    { "tag": "中文", "name": "芒种", "artist": "音阙诗听 / 赵方婧" },
+    { "tag": "高音", "name": "大鱼", "artist": "周深" },
+    { "tag": "中文", "name": "云与海", "artist": "阿YueYue" },
+    { "tag": "中文", "name": "白月光与朱砂痣", "artist": "大籽" },
+    { "tag": "高音", "name": "左手指月", "artist": "萨顶顶" },
+    { "tag": "纯音乐", "name": "青花瓷（钢琴版）", "artist": "昼夜" }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "mio",
+  "name": "澪 Mio",
+  "handle": "Mio_Neon",
+  "bio": "隔日晚 22:00｜韩系女团与 K-POP，打歌舞台同步跟唱。",
+  "intro": "隔日晚 22:00 开播，韩系女团与 K-POP 为主，打歌舞台会同步跟唱。点歌请写「歌名 + 团名」，方便我对齐版本。",
+  "tags": ["韩语", "女团", "电音"],
+  "theme": "neon",
+  "accent": "#2DD4A7",
+  "bilibili": {
+    "space": "https://space.bilibili.com/100004",
+    "live": "https://live.bilibili.com/200004"
+  },
+  "title": "打歌歌单",
+  "updated": "4 天前",
+  "songs": [
+    { "tag": "韩语", "name": "Ditto", "artist": "NewJeans" },
+    { "tag": "韩语", "name": "Super Shy", "artist": "NewJeans" },
+    { "tag": "韩语", "name": "How You Like That", "artist": "BLACKPINK" },
+    { "tag": "韩语", "name": "FANCY", "artist": "TWICE" },
+    { "tag": "韩语", "name": "LOVE DIVE", "artist": "IVE" },
+    { "tag": "韩语", "name": "Spicy", "artist": "aespa" },
+    { "tag": "韩语", "name": "ANTIFRAGILE", "artist": "LE SSERAFIM" },
+    { "tag": "电音", "name": "Dynamite", "artist": "BTS" }
+  ]
+}

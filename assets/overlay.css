@@ -1,0 +1,389 @@
+/* ============================================================
+   悬浮层样式 · 供 OBS「浏览器」来源使用
+   两条原则：
+   1. 页面全透明，任何底板都是"条目自己的"半透明块，不影响整页。
+   2. 所有尺寸都用 em（相对 --fs = 歌名字号），改一个 size 参数
+      就整体等比缩放，不会出现字大了标签还小的割裂感。
+   颜色全部来自 assets/theme.js 写出的 CSS 变量，这里不写死任何色值。
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* .bar / .head 自己带 display，会盖掉 hidden 属性的默认样式，
+   所以这里显式兜底，否则 JS 设 hidden 也藏不住。 */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body {
+  font-family: var(--font, "Noto Sans SC", "PingFang SC", "HarmonyOS Sans SC",
+               "Microsoft YaHei", "Hiragino Sans GB", system-ui, sans-serif);
+  color: var(--color, #fff);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 主题变量兜底：JS 未执行时也不会难看 */
+:root {
+  --fs: 16;
+  --radius-k: .75;
+  --blur-k: .62;
+  --gap-k: .62;
+  --pad-k: .56;
+  --padx-k: .80;
+  --accent: #7C9CFF;
+  --accent-rgb: 124,156,255;
+  --bg-rgb: 8,10,16;
+  --bg-a: .55;
+  --color: #FFFFFF;
+  --sub: #B9C2D2;
+  --sub-rgb: 185,194,210;
+  --line-rgb: 255,255,255;
+  --line-a: .08;
+  --tag-a: .9;
+  --ts: 0 .11em .70em rgba(0,0,0,.85), 0 .04em .16em rgba(0,0,0,.90);
+  --ts-soft: 0 .09em .55em rgba(0,0,0,.80), 0 .03em .12em rgba(0,0,0,.85);
+}
+
+/* ---------- 三套外观的缩放系数 ---------- */
+body.style-compact { --gap-k: .62; --pad-k: .56; --radius-k: .75; }
+body.style-banner  { --gap-k: .35; --pad-k: .41; --radius-k: .47; }
+body.style-minimal { --gap-k: .25; --pad-k: .38; --radius-k: .50; }
+
+/* ---------- 外层 ---------- */
+.overlay {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--fs) * .75 * 1px);
+  padding: calc(var(--fs) * .85 * 1px);
+  width: 100%;
+  min-width: 0;
+}
+body.no-panel .overlay { padding: 0; }
+
+/* ============================================================
+   主播身份行
+   DOM 固定为 who / head / links 三段，
+   紧凑版靠 flex-wrap 折成两行，大字版共处一行。
+   ============================================================ */
+.bar {
+  display: flex;
+  flex-wrap: wrap;                 /* 紧凑窄版：标题独占第二行 */
+  align-items: center;
+  gap: calc(var(--fs) * .55 * 1px);
+  min-width: 0;
+}
+body.style-banner .bar { flex-wrap: nowrap; gap: calc(var(--fs) * .8 * 1px); }
+body.no-identity .bar { display: none; }
+
+/* 非大字版：身份行与跳转按钮同排，标题单独占第二行。
+   DOM 顺序是 who → head → links，靠 order 把 links 提到第二行之前，
+   否则 flex-wrap 会把 links 挤到第三行去。 */
+body:not(.style-banner) .who   { order: 1; }
+body:not(.style-banner) .links { order: 2; }
+body:not(.style-banner) .head  { order: 3; flex-basis: 100%; }
+
+/* -- 主播头像 + 名字 -- */
+.who {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--fs) * .58 * 1px);
+  flex: 0 1 auto;
+  min-width: 0;
+}
+body.style-banner .who { flex: 0 0 auto; }
+
+.who-avatar {
+  flex: none;
+  width: calc(var(--fs) * 2.38 * 1px);
+  height: calc(var(--fs) * 2.38 * 1px);
+  border-radius: 50%;
+  background-color: var(--accent);
+  background-image: linear-gradient(135deg, var(--accent), var(--accent2, var(--accent)));
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .28), 0 .06em .30em rgba(0, 0, 0, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--fs) * .62 * 1px);
+  font-weight: 700;
+  color: var(--accent-fg, #0B0D13);
+  text-shadow: none;
+  overflow: hidden;
+}
+.who-avatar.has-img .who-initial { display: none; }
+
+.who-text {
+  display: flex;
+  flex-direction: column;
+  gap: .05em;
+  min-width: 0;
+}
+.who-name {
+  font-size: calc(var(--fs) * .88 * 1px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: .01em;
+  text-shadow: var(--ts);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.who-handle {
+  font-size: calc(var(--fs) * .66 * 1px);
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--accent);
+  text-shadow: var(--ts-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* -- 跳转按钮（B站主页 / 直播间）-- */
+.links {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--fs) * .34 * 1px);
+  flex: none;
+  margin-left: auto;               /* 紧凑窄版：贴到身份行右端 */
+}
+body.style-banner .links { margin-left: 0; }
+body.no-link .links { display: none; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: .32em .72em;
+  font-size: calc(var(--fs) * .60 * 1px);
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-decoration: none;
+  background: rgba(var(--line-rgb), calc(var(--line-a) + .06));
+  box-shadow: inset 0 0 0 1px rgba(var(--line-rgb), calc(var(--line-a) + .16));
+  color: var(--color);
+  text-shadow: var(--ts-soft);
+  transition: background .18s ease;
+}
+.chip-live {
+  background: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .28);
+  /* 「白昼」这类深主色上写死深字会糊成一片，按主色亮度取字色 */
+  color: var(--accent-fg, #0B0D13);
+  text-shadow: none;
+}
+.chip:hover { background: rgba(var(--line-rgb), calc(var(--line-a) + .16)); }
+.chip-live:hover { background: var(--accent); filter: brightness(1.08); }
+
+/* -- 歌单标题 -- */
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  flex: 1 1 100%;                  /* 紧凑窄版：换到第二行 */
+  min-width: 0;
+}
+body.style-banner .head { flex: 1 1 auto; justify-content: center; }
+body.no-head .head { display: none; }
+
+.head-title {
+  margin: 0;
+  font-size: calc(var(--fs) * .95 * 1px);
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-shadow: var(--ts);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.head-count {
+  flex: none;
+  font-size: calc(var(--fs) * .72 * 1px);
+  font-weight: 400;
+  color: var(--sub);
+  text-shadow: var(--ts-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   条目列表
+   ============================================================ */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--fs) * var(--gap-k) * 1px);
+  min-width: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--fs) * .62 * 1px);
+  padding: calc(var(--fs) * var(--pad-k) * 1px)
+           calc(var(--fs) * var(--pad-k) * 1.3 * 1px);
+  border-radius: calc(var(--fs) * var(--radius-k) * 1px);
+  background: rgba(var(--bg-rgb), var(--bg-a));
+  box-shadow: inset 0 0 0 1px rgba(var(--line-rgb), var(--line-a));
+  -webkit-backdrop-filter: blur(calc(var(--fs) * var(--blur-k) * 1px));
+  backdrop-filter: blur(calc(var(--fs) * var(--blur-k) * 1px));
+  min-width: 0;
+  position: relative;
+  transition: background .2s ease;
+}
+
+body.no-panel .item {
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* 正在播放（?playing=索引） */
+.item.is-playing {
+  background: rgba(var(--accent-rgb), calc(var(--bg-a) * .55 + .16));
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), .55);
+}
+.item.is-playing::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: calc(var(--fs) * .16 * 1px);
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: .95;
+}
+
+/* ---------- 分类标签（圆角半透明色块） ---------- */
+.tag {
+  flex: none;
+  border-radius: 999px;
+  padding: .30em .72em;
+  font-size: calc(var(--fs) * .70 * 1px);
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+  background: rgba(var(--tag-rgb), var(--tag-a));
+  color: var(--tag-fg, #fff);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .30);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+}
+body.no-tags .tag { display: none; }
+
+/* ---------- 歌名 + 歌手 ---------- */
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: .1em;
+  min-width: 0;                    /* 关键：让长歌名换行而不是撑破容器 */
+  flex: 1 1 auto;
+}
+
+.name {
+  font-size: calc(var(--fs) * 1px);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: .01em;
+  text-shadow: var(--ts);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
+}
+
+.artist {
+  font-size: calc(var(--fs) * .78 * 1px);
+  font-weight: 400;
+  color: var(--sub);
+  text-shadow: var(--ts-soft);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* ---------- 变体 2：大字大屏版 ---------- */
+/* 大字版的字号只有歌名被放大，主播身份与按钮要相对收缩，
+   否则字大一圈、头像也大一圈，底部整条会被撑得又高又笨。
+   下面这些比例是按画布稿逐项对齐的，别随手改。 */
+body.style-banner .who-avatar { width: calc(var(--fs) * 1.55 * 1px); height: calc(var(--fs) * 1.55 * 1px); }
+body.style-banner .who-name   { font-size: calc(var(--fs) * .75 * 1px); }
+body.style-banner .who-handle { font-size: calc(var(--fs) * .44 * 1px); }
+body.style-banner .chip       { font-size: calc(var(--fs) * .44 * 1px); padding: .34em .78em; }
+body.style-banner .head-title { font-size: calc(var(--fs) * .68 * 1px); }
+body.style-banner .head-count { font-size: calc(var(--fs) * .50 * 1px); }
+body.style-banner .tag { padding: .26em .62em; }
+body.style-banner .meta {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+body.style-banner .name { flex: 0 1 auto; }
+body.style-banner .artist {
+  flex: 0 0 auto;
+  margin-left: auto;
+  text-align: right;
+}
+body.style-banner .list { width: 100%; }
+
+/* ---------- 变体 3：简约无标签版 ---------- */
+body.style-minimal .item {
+  padding: calc(var(--fs) * var(--pad-k) * 1px) 0;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  gap: calc(var(--fs) * .72 * 1px);
+}
+body.style-minimal .item.is-playing {
+  background: transparent;
+  box-shadow: none;
+  padding-left: calc(var(--fs) * .7 * 1px);
+}
+body.style-minimal .item.is-playing::before { top: 22%; bottom: 22%; opacity: .7; }
+body.style-minimal .meta {
+  flex-direction: row;
+  align-items: baseline;
+  gap: .8em;
+  flex-wrap: wrap;
+}
+body.style-minimal .name { font-weight: 500; }
+body.style-minimal .artist { color: var(--sub); opacity: .85; }
+
+/* ---------- 状态提示 ---------- */
+.empty {
+  font-size: calc(var(--fs) * .8 * 1px);
+  color: var(--sub);
+  text-shadow: var(--ts-soft);
+  padding: calc(var(--fs) * .6 * 1px) 0;
+}
+
+/* ============================================================
+   本地预览（?preview=1）—— 直播时不会出现
+   用一层示意背景模拟"叠在游戏画面上"的效果，验证文字阴影够不够。
+   ============================================================ */
+body.preview {
+  min-height: 100vh;
+  background:
+    radial-gradient(120% 90% at 12% 8%, #3B4E82 0%, rgba(59, 78, 130, 0) 55%),
+    radial-gradient(100% 80% at 88% 92%, #6B4462 0%, rgba(107, 68, 98, 0) 60%),
+    linear-gradient(160deg, #1B2233 0%, #0B0E16 100%);
+}
+body.preview.mode-light {
+  background:
+    radial-gradient(120% 90% at 12% 8%, #CFE0FF 0%, rgba(207, 224, 255, 0) 55%),
+    radial-gradient(100% 80% at 88% 92%, #FFD9EC 0%, rgba(255, 217, 236, 0) 60%),
+    linear-gradient(160deg, #F3F6FC 0%, #E8ECF4 100%);
+}
+body.preview .overlay { margin: 40px; width: auto; }
+body.preview.style-banner .overlay { margin: 40px; }

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>主播主页 · 主播歌单站</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<div class="wrap">
+  <div style="margin-bottom:18px">
+    <a class="link-quiet" href="index.html">← 回到主播大厅</a>
+  </div>
+
+  <div id="profile" hidden>
+    <section class="hero">
+      <span class="hero-avatar" id="heroAvatar"><span id="heroInitial"></span></span>
+      <div class="hero-info">
+        <h1 id="heroName"></h1>
+        <div class="hero-handle" id="heroHandle"></div>
+        <p class="hero-intro" id="heroIntro"></p>
+        <div class="hero-meta" id="heroMeta"></div>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-primary" id="btnLive" target="_blank" rel="noopener">进入直播间</a>
+        <a class="btn btn-ghost" id="btnSpace" target="_blank" rel="noopener">B站主页</a>
+        <a class="link-quiet" href="#obs">复制 OBS 地址 ↓</a>
+      </div>
+    </section>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2 id="songTitle">完整歌单</h2>
+          <span id="songCount"></span>
+        </div>
+        <div class="songs" id="songs"></div>
+      </section>
+
+      <aside class="side">
+        <div class="panel" id="obs">
+          <h2>OBS 悬浮层地址</h2>
+          <p>这条地址已经带上了该主播的数据与配色。粘进 OBS「浏览器」来源 → 勾选透明背景 → 宽高对齐画布。</p>
+
+          <span class="field-label">外观</span>
+          <div class="seg" id="segStyle">
+            <button type="button" data-style="compact">紧凑窄版</button>
+            <button type="button" data-style="banner">大字大屏</button>
+            <button type="button" data-style="minimal">简约无标签</button>
+          </div>
+
+          <span class="field-label">主题</span>
+          <div class="swatches" id="swatches"></div>
+
+          <span class="field-label">地址</span>
+          <div class="code" id="obsUrl"></div>
+          <button class="btn btn-primary btn-block" id="copyObs">复制地址</button>
+          <div class="card-foot" style="margin-top:10px; gap:8px">
+            <a class="btn btn-ghost btn-sm" id="previewObs" target="_blank" rel="noopener">在新窗口预览</a>
+            <a class="btn btn-ghost btn-sm" href="studio.html">细调 →</a>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>同站其他主播</h2>
+          <div id="others"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="state" id="state">加载中…</div>
+</div>
+
+<script src="assets/theme.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/profile.js"></script>
+</body>
+</html>

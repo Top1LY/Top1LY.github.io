@@ -1,0 +1,26 @@
+{
+  "id": "kai",
+  "name": "凯 Kai",
+  "handle": "KaiOfficial",
+  "bio": "周末通宵场｜欧美电音与说唱，点歌不限语种。",
+  "intro": "周末通宵场，欧美电音与说唱为主，点歌不限语种。想听的直接刷，排到就放，长曲会提前说一声。",
+  "tags": ["英文", "电音", "RAP"],
+  "theme": "midnight",
+  "accent": "#D9B45B",
+  "bilibili": {
+    "space": "https://space.bilibili.com/100003",
+    "live": "https://live.bilibili.com/200003"
+  },
+  "title": "通宵歌单",
+  "updated": "3 天前",
+  "songs": [
+    { "tag": "英文", "name": "Blinding Lights", "artist": "The Weeknd" },
+    { "tag": "电音", "name": "Starlight", "artist": "Jai Wolf" },
+    { "tag": "英文", "name": "Levitating", "artist": "Dua Lipa" },
+    { "tag": "RAP", "name": "Lose Yourself", "artist": "Eminem" },
+    { "tag": "电音", "name": "Faded", "artist": "Alan Walker" },
+    { "tag": "英文", "name": "Closer", "artist": "The Chainsmokers" },
+    { "tag": "RAP", "name": "Sicko Mode", "artist": "Travis Scott" },
+    { "tag": "电音", "name": "Wake Me Up", "artist": "Avicii" }
+  ]
+}

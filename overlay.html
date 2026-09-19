@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>主播歌单 · 悬浮层</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/overlay.css">
+</head>
+<body class="style-compact">
+
+  <div class="overlay">
+    <div class="bar" id="bar" hidden>
+      <div class="who" id="who">
+        <span class="who-avatar" id="whoAvatar"><span class="who-initial" id="whoInitial"></span></span>
+        <span class="who-text">
+          <span class="who-name" id="whoName"></span>
+          <span class="who-handle" id="whoHandle"></span>
+        </span>
+      </div>
+
+      <header class="head" id="head">
+        <h1 class="head-title" id="headTitle"></h1>
+        <span class="head-count" id="headCount"></span>
+      </header>
+
+      <div class="links" id="links">
+        <a class="chip" id="chipSpace" target="_blank" rel="noopener">B站主页</a>
+        <a class="chip chip-live" id="chipLive" target="_blank" rel="noopener">直播间</a>
+      </div>
+    </div>
+
+    <ol class="list" id="list"></ol>
+
+    <div class="empty" id="empty" hidden></div>
+  </div>
+
+  <script src="assets/theme.js"></script>
+  <script src="assets/common.js"></script>
+  <script src="assets/overlay.js"></script>
+</body>
+</html>

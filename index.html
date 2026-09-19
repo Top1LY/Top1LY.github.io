@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>点歌台 · 主播歌单站</title>
+<link rel="stylesheet" href="assets/site.css">
+<script>
+/* 兼容：老地址形如 index.html?style=compact&size=18（当时悬浮层在根目录）。
+   只要带了悬浮层参数，就自动转到 overlay.html，OBS 里不用改地址。 */
+(function () {
+  var OVERLAY_KEYS = ['style', 'src', 'id', 'playing', 'refresh', 'max',
+                      'panel', 'tags', 'size', 'blur', 'radius', 'identity',
+                      'avatar', 'link', 'preview', 'accent', 'accent2', 'bg', 'color', 'sub',
+                      'bgOpacity', 'tagAlpha', 'tagSat', 'tagLight', 'title', 'theme', 'font'];
+  var q = new URLSearchParams(location.search);
+  var hit = OVERLAY_KEYS.some(function (k) { return q.has(k); });
+  if (hit) location.replace('overlay.html' + location.search);
+})();
+</script>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="site-head">
+    <div>
+      <h1 class="site-title" id="siteTitle">点歌台 · 主播歌单站</h1>
+      <p class="site-tagline" id="siteTagline">选一位主播进入她的歌单主页；OBS 悬浮层地址在主页里一键复制</p>
+    </div>
+    <div class="site-meta">
+      <span class="count" id="stat"></span>
+      <a class="btn btn-ghost btn-sm" id="studioLink" href="studio.html">打开配置台 →</a>
+    </div>
+  </header>
+
+  <div class="cards" id="cards"></div>
+  <div class="state" id="state" hidden>加载中…</div>
+</div>
+
+<script src="assets/theme.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/home.js"></script>
+</body>
+</html>
